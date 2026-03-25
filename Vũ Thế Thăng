@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+      ),
+      home: InterestCalculator(),
+    );
+  }
+}
+
+class InterestCalculator extends StatefulWidget {
+  @override
+  _InterestCalculatorState createState() => _InterestCalculatorState();
+}
+
+class _InterestCalculatorState extends State<InterestCalculator> {
+  final TextEditingController moneyController = TextEditingController();
+  final TextEditingController rateController = TextEditingController();
+
+  String result = "";
+
+  void calculate() {
+    double money = double.tryParse(moneyController.text) ?? 0;
+    double rate = double.tryParse(rateController.text) ?? 0;
+
+    if (money <= 0 || rate <= 0) {
+      setState(() {
+        result = "⚠️ Vui lòng nhập dữ liệu hợp lệ";
+      });
+      return;
+    }
+
+    double years = 72 / rate;
+
+    setState(() {
+      result = "💰 Số năm để tiền gấp đôi: ${years.toStringAsFixed(2)} năm";
+    });
+  }
+
+  Widget buildInput(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            hintText: "Nhập $label",
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        title: Text("Máy tính lãi suất"),
+        centerTitle: true,
+        elevation: 2,
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Container(
+            margin: EdgeInsets.all(16),
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                )
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildInput("Số tiền", moneyController),
+                SizedBox(height: 16),
+                buildInput("Lãi suất năm (%)", rateController),
+                SizedBox(height: 24),
+
+                ElevatedButton(
+                  onPressed: calculate,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    "Tính toán",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                if (result.isNotEmpty)
+                  Container(
+                    padding: EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.indigo.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      result,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
