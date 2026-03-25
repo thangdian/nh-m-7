@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: InterestCalculator(),
+    );
+  }
+}
+
+class InterestCalculator extends StatefulWidget {
+  @override
+  _InterestCalculatorState createState() => _InterestCalculatorState();
+}
+
+class _InterestCalculatorState extends State<InterestCalculator> {
+  final TextEditingController moneyController = TextEditingController();
+  final TextEditingController rateController = TextEditingController();
+
+  String result = "";
+
+  void calculate() {
+    double money = double.tryParse(moneyController.text) ?? 0;
+    double rate = double.tryParse(rateController.text) ?? 0;
+
+    if (money <= 0 || rate <= 0) {
+      setState(() {
+        result = "Vui lòng nhập dữ liệu hợp lệ";
+      });
+      return;
+    }
+
+    // Tính số năm để tiền gấp đôi (lãi đơn gần đúng)
+    double years = 72 / rate;
+
+    setState(() {
+      result = "Số năm để tiền tăng gấp đôi: ${years.toStringAsFixed(2)} năm";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Máy tính lãi suất"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Số tiền"),
+            TextField(
+              controller: moneyController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+
+            Text("Lãi hằng năm (%)"),
+            TextField(
+              controller: rateController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+
+            ElevatedButton(
+              onPressed: calculate,
+              child: Text("Tính toán"),
+            ),
+            SizedBox(height: 20),
+
+            Text(
+              result,
+              style: TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
