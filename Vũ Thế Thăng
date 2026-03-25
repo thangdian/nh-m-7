@@ -9,9 +9,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
       home: InterestCalculator(),
     );
   }
@@ -23,8 +20,8 @@ class InterestCalculator extends StatefulWidget {
 }
 
 class _InterestCalculatorState extends State<InterestCalculator> {
-  final TextEditingController moneyController = TextEditingController();
-  final TextEditingController rateController = TextEditingController();
+  final moneyController = TextEditingController();
+  final rateController = TextEditingController();
 
   String result = "";
 
@@ -34,7 +31,7 @@ class _InterestCalculatorState extends State<InterestCalculator> {
 
     if (money <= 0 || rate <= 0) {
       setState(() {
-        result = "⚠️ Vui lòng nhập dữ liệu hợp lệ";
+        result = "⚠️ Vui lòng nhập hợp lệ";
       });
       return;
     }
@@ -42,98 +39,130 @@ class _InterestCalculatorState extends State<InterestCalculator> {
     double years = 72 / rate;
 
     setState(() {
-      result = "💰 Số năm để tiền gấp đôi: ${years.toStringAsFixed(2)} năm";
+      result = "💸 ${years.toStringAsFixed(2)} năm để gấp đôi";
     });
   }
 
-  Widget buildInput(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-        SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: "Nhập $label",
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
+  Widget buildInput(String label, IconData icon,
+      TextEditingController controller) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          )
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: Colors.indigo),
+          hintText: label,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 16),
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        title: Text("Máy tính lãi suất"),
-        centerTitle: true,
-        elevation: 2,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(0, 4),
-                )
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                buildInput("Số tiền", moneyController),
-                SizedBox(height: 16),
-                buildInput("Lãi suất năm (%)", rateController),
-                SizedBox(height: 24),
+      // 🌈 nền gradient nhẹ
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE3F2FD), Color(0xFFEDE7F6)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: 20),
 
-                ElevatedButton(
-                  onPressed: calculate,
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              // 🔥 Title đẹp hơn
+              Text(
+                "💰 Interest Calculator",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo,
+                ),
+              ),
+
+              SizedBox(height: 30),
+
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(30),
                     ),
                   ),
-                  child: Text(
-                    "Tính toán",
-                    style: TextStyle(fontSize: 16),
+                  child: Column(
+                    children: [
+                      buildInput("Nhập số tiền", Icons.attach_money,
+                          moneyController),
+                      buildInput("Lãi suất (%)", Icons.percent,
+                          rateController),
+
+                      SizedBox(height: 20),
+
+                      // 🔘 Button đẹp hơn
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: calculate,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: StadiumBorder(),
+                            backgroundColor: Colors.indigo,
+                            elevation: 5,
+                          ),
+                          child: Text(
+                            "TÍNH TOÁN",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 30),
+
+                      // 🎯 Result box đẹp
+                      AnimatedContainer(
+                        duration: Duration(milliseconds: 400),
+                        padding: EdgeInsets.all(16),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: result.isEmpty
+                              ? Colors.grey.shade100
+                              : Colors.indigo.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          result.isEmpty
+                              ? "Kết quả sẽ hiển thị ở đây"
+                              : result,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-
-                SizedBox(height: 20),
-
-                if (result.isNotEmpty)
-                  Container(
-                    padding: EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.indigo.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      result,
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
