@@ -1,0 +1,176 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: ProInterestApp(),
+    );
+  }
+}
+
+class ProInterestApp extends StatefulWidget {
+  @override
+  _ProInterestAppState createState() => _ProInterestAppState();
+}
+
+class _ProInterestAppState extends State<ProInterestApp>
+    with SingleTickerProviderStateMixin {
+  final moneyController = TextEditingController();
+  final rateController = TextEditingController();
+  final yearController = TextEditingController();
+
+  double? result;
+  late AnimationController _controller;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+  }
+
+  void calculate() {
+    double money = double.tryParse(moneyController.text) ?? 0;
+    double rate = double.tryParse(rateController.text) ?? 0;
+    double years = double.tryParse(yearController.text) ?? 0;
+
+    if (money <= 0 || rate <= 0 || years <= 0) {
+      setState(() {
+        result = null;
+      });
+      return;
+    }
+
+    // 💰 Lãi kép: A = P(1 + r)^t
+    double finalMoney = money * (1 + rate / 100);
+    for (int i = 1; i < years; i++) {
+      finalMoney *= (1 + rate / 100);
+    }
+
+    setState(() {
+      result = finalMoney;
+    });
+
+    _controller.forward(from: 0);
+  }
+
+  Widget input(String hint, TextEditingController controller, IconData icon) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 14),
+      padding: EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+          icon: Icon(icon, color: Colors.deepPurple),
+          hintText: hint,
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        // 🌈 Gradient nền PRO
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF5F2C82), Color(0xFF49A09D)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15), // glass effect
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(color: Colors.white30),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "💎 PRO Interest Calculator",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+
+                  input("Số tiền ban đầu", moneyController, Icons.money),
+                  input("Lãi suất (%)", rateController, Icons.percent),
+                  input("Số năm", yearController, Icons.calendar_today),
+
+                  SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: calculate,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.deepPurple,
+                        shape: StadiumBorder(),
+                      ),
+                      child: Text("Tính toán"),
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // 🎯 Result animation
+                  FadeTransition(
+                    opacity: _fade,
+                    child: result != null
+                        ? Column(
+                            children: [
+                              Text(
+                                "Kết quả",
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 14),
+                              ),
+                              SizedBox(height: 6),
+                              Text(
+                                "${result!.toStringAsFixed(2)} VND",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.yellowAccent,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            "Nhập đầy đủ thông tin",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
